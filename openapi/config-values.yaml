@@ -1,0 +1,31 @@
+type: object
+properties:
+  settings:
+    type: object
+    properties:
+      roller:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+          limit:
+            type: integer
+            default: 10
+      sayer:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+          text:
+            type: string
+            default: Hello
+      kv:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+  replicas:
+    type: integer
+    description: |
+      Replicas count.
+    default: 1

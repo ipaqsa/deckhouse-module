@@ -1,0 +1,40 @@
+name: Deploy
+
+env:
+  MODULE_NAME: xmodule
+
+on:
+  workflow_dispatch:
+   inputs:
+      release_channel:
+        description: Select the release channel
+        type: choice
+        default: alpha
+        options:
+          - alpha
+          - beta
+          - early-access
+          - stable
+          - rock-solid
+      tag:
+        description: Tag of the module, e.g., v1.21.1
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy the module
+    steps:
+      - uses: actions/checkout@v4
+      - uses: deckhouse/modules-actions/setup@main
+        with:
+          registry: ghcr.io
+          registry_login: ${{ github.actor }}
+          registry_password: ${{ secrets.TOKEN }}
+      - uses: deckhouse/modules-actions/deploy@main
+        with:
+          module_source: ghcr.io/${{ github.repository_owner }}/${{ github.repository_owner }}/modules
+          module_name: ${{ env.MODULE_NAME }}
+          module_tag: ${{ github.event.inputs.tag }}
+          release_channel: ${{ github.event.inputs.release_channel }}

@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xmodule
+  namespace: xmodule
+  {{- include "helm_lib_module_labels" (list . (dict "app" "xmodule")) | nindent 2 }}
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  type: ClusterIP
+  selector:
+    app: xmodule

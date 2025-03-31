@@ -1,0 +1,8 @@
+name: xmodule
+stage: Sandbox
+weight: 960
+namespace: xmodule
+descriptions:
+  en: A simple module for demo purposes.
+tags: 
+  - demo

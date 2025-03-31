@@ -1,0 +1,27 @@
+name: Setup module building environment
+description: Sets up werf v2 and other tools for module development
+
+inputs:
+  registry:
+    description: Registry URL
+    required: true
+  registry_login:
+    description: Registry login
+    required: true
+  registry_password:
+    description: Registry password
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: werf/actions/install@v2
+    - uses: imjasonh/setup-crane@v0.4
+
+    - name: Print werf version
+      shell: bash
+      run: werf version
+
+    - name: Login into registry ${{ inputs.registry }}
+      shell: bash
+      run: werf cr login -u ${{ inputs.registry_login }} -p ${{ inputs.registry_password }} ${{ inputs.registry }}

@@ -1,0 +1,32 @@
+name: Build
+
+on: [push]
+
+env:
+  CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+  MODULE_NAME: xmodule
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    name: Lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: deckhouse/modules-actions/lint@main
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Push images
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          registry: ghcr.io
+          registry_login: ${{ github.actor }}
+          registry_password: ${{ secrets.TOKEN }}
+      - uses: deckhouse/modules-actions/build@main
+        with:
+          module_source: ghcr.io/${{ github.repository_owner }}/${{ github.repository_owner }}/modules
+          module_name: ${{ env.MODULE_NAME }}
+          module_tag: ${{ github.ref_name }}

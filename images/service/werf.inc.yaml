@@ -1,0 +1,49 @@
+---
+image: {{ .ModuleName }}/{{ .ImageName }}
+from: {{ .Images.DISTROLESS }}
+final: true
+import:
+  - image: {{ .ModuleName }}/{{ $.ImageName }}-builder
+    add: /src/module
+    to: /module
+    before: setup
+imageSpec:
+  config:
+    entrypoint: [ "/module" ]
+---
+image: {{ .ModuleName }}/{{ .ImageName }}-src
+from: {{ .Images.SCRATCH }}
+final: false
+git:
+  - add: /images/{{ $.ImageName }}/src
+    to: /src
+    includePaths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+    excludePaths:
+      - werf.yaml
+      - werf.inc.yaml
+    stageDependencies:
+      install:
+        - '**/*.go'
+        - '**/go.mod'
+        - '**/go.sum'
+---
+image: {{ .ModuleName }}/{{ .ImageName }}-builder
+from: {{ .Images.GOLANG }}
+final: false
+import:
+  - image: {{ .ModuleName }}/{{ $.ImageName }}-src
+    add: /src
+    to: /src
+    before: install
+mount:
+  - fromPath: ~/go-pkg-cache
+    to: /go/pkg
+shell:
+  install:
+    - cd /src
+    - CGO_ENABLED=0 GOOS=linux go build -ldflags '-s -w' -o module ./cmd/main.go
+    - chown 64535:64535 module
+    - chmod 0700 module
