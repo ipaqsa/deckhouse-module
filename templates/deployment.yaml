@@ -53,7 +53,10 @@ spec:
       labels:
         app: xmodule
     spec:
-      priorityClassName: develop
+      {{- include "helm_lib_priority_class" (tuple . "develop") | nindent 6 }}
+      {{- include "helm_lib_module_pod_security_context_run_as_user_deckhouse" . | nindent 6 }}
+      imagePullSecrets:
+        - name: registrysecret
       containers:
         - image: {{ include "helm_lib_module_image" (list . "service") }}
           imagePullPolicy: IfNotPresent
@@ -64,13 +67,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
           resources:
             requests:
               {{- include "helm_lib_module_ephemeral_storage_only_logs" . | nindent 14 }}
-          {{- include "helm_lib_module_container_security_context_run_as_user_deckhouse_pss_restricted" . | nindent 10 }}
-      {{- include "helm_lib_module_pod_security_context_run_as_user_deckhouse" . | nindent 6 }}

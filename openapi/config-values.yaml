@@ -1,6 +1,6 @@
 type: object
 properties:
-  settings:
+  config:
     type: object
     properties:
       roller:
