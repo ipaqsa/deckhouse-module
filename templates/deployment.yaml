@@ -55,9 +55,9 @@ spec:
     spec:
       priorityClassName: develop
       containers:
-        - image: {{ include "helm_lib_module_image" (list . "xmodule") }}
+        - image: {{ include "helm_lib_module_image" (list . "service") }}
           imagePullPolicy: IfNotPresent
-          name: xmodule
+          name: service
           ports:
             - containerPort: 8080
               name: http
