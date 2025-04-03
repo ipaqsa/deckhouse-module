@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"sort"
 
 	"github.com/x/module/internal/config"
 	"github.com/x/module/internal/service/keyvalue"
@@ -36,22 +38,50 @@ func New(conf config.Config) *Server {
 }
 
 func (s *Server) Serve(_ context.Context, address string) error {
+	routes := make(map[string]struct{})
+
 	if s.kvService != nil {
 		log.Println("register kv handlers")
 		http.HandleFunc("GET /kv/{key}", s.handleGetKey)
 		http.HandleFunc("PUT /kv/{key}", s.handlePutKey)
 		http.HandleFunc("DELETE /kv/{key}", s.handleDeleteKey)
+
+		routes["GET /kv/{key}"] = struct{}{}
+		routes["PUT /kv/{key}"] = struct{}{}
+		routes["DELETE /kv/{key}"] = struct{}{}
 	}
 
 	if s.sayerService != nil {
 		log.Println("register sayer handlers")
-		http.HandleFunc("/say", s.handleSay)
+		http.HandleFunc("GET /say", s.handleSay)
+
+		routes["GET /say"] = struct{}{}
 	}
 
 	if s.rollerService != nil {
 		log.Println("register roller handlers")
-		http.HandleFunc("/roll", s.handleRoll)
+		http.HandleFunc("GET /roll", s.handleRoll)
+
+		routes["GET /roll"] = struct{}{}
 	}
+
+	http.HandleFunc("/endpoints", func(w http.ResponseWriter, r *http.Request) {
+		var keys []string
+		for key := range routes {
+			keys = append(keys, key)
+		}
+
+		sort.Strings(keys)
+
+		w.Header().Set("Content-Type", "text/plain")
+
+		fmt.Fprintln(w, "Available endpoints:")
+		for _, route := range keys {
+			fmt.Fprintf(w, "  %s\n", route)
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
 
 	log.Printf("server listening on %s", address)
 	return http.ListenAndServe(address, nil)

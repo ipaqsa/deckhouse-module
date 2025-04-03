@@ -11,7 +11,7 @@ import (
 type Config struct {
 	Roller   roller.Config   `mapstructure:"roller"`
 	Sayer    sayer.Config    `mapstructure:"sayer"`
-	KeyValue keyvalue.Config `mapstructure:"keyvalue"`
+	KeyValue keyvalue.Config `mapstructure:"kv"`
 }
 
 func Load() Config {
