@@ -14,7 +14,7 @@ type Config struct {
 	KeyValue keyvalue.Config `mapstructure:"kv"`
 }
 
-func Load() Config {
+func MustLoad() Config {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {

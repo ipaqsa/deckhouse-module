@@ -78,12 +78,17 @@ func (s *Server) Serve(_ context.Context, address string) error {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	// for probes
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	log.Printf("server listening on %s", address)
 	return http.ListenAndServe(address, nil)
 }
 
 func (s *Server) handleGetKey(w http.ResponseWriter, r *http.Request) {
-	log.Println("handle get key")
+	log.Println("handle get key request")
 
 	key := r.PathValue("key")
 	if key == "" {
@@ -99,6 +104,7 @@ func (s *Server) handleGetKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain")
 	if _, err := w.Write([]byte(value)); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -108,7 +114,7 @@ func (s *Server) handleGetKey(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handlePutKey(w http.ResponseWriter, r *http.Request) {
-	log.Println("handle put key")
+	log.Println("handle put key request")
 
 	key := r.PathValue("key")
 	if key == "" {
@@ -129,7 +135,7 @@ func (s *Server) handlePutKey(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleDeleteKey(w http.ResponseWriter, r *http.Request) {
-	log.Println("handle delete key")
+	log.Println("handle delete key request")
 
 	key := r.PathValue("key")
 	if key == "" {
@@ -143,8 +149,9 @@ func (s *Server) handleDeleteKey(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleSay(w http.ResponseWriter, _ *http.Request) {
-	log.Println("handle say")
+	log.Println("handle say request")
 
+	w.Header().Set("Content-Type", "text/plain")
 	if _, err := w.Write([]byte(s.sayerService.Say())); err != nil {
 		log.Printf("failed to write say text: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -155,8 +162,9 @@ func (s *Server) handleSay(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) handleRoll(w http.ResponseWriter, _ *http.Request) {
-	log.Println("handle roll")
+	log.Println("handle roll request")
 
+	w.Header().Set("Content-Type", "text/plain")
 	if _, err := w.Write([]byte(s.rollerService.RollDice())); err != nil {
 		log.Printf("failed to write roll result: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -10,7 +10,7 @@ import (
 const address = ":8080"
 
 func main() {
-	if err := server.New(config.Load()).Serve(context.Background(), address); err != nil {
+	if err := server.New(config.MustLoad()).Serve(context.Background(), address); err != nil {
 		panic(err)
 	}
 }
