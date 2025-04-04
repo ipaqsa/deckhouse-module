@@ -38,7 +38,7 @@ func New(conf config.Config) *Server {
 }
 
 func (s *Server) Serve(_ context.Context, address string) error {
-	routes := make(map[string]struct{})
+	var routes []string
 
 	if s.kvService != nil {
 		log.Println("register kv handlers")
@@ -46,37 +46,32 @@ func (s *Server) Serve(_ context.Context, address string) error {
 		http.HandleFunc("PUT /kv/{key}", s.handlePutKey)
 		http.HandleFunc("DELETE /kv/{key}", s.handleDeleteKey)
 
-		routes["GET /kv/{key}"] = struct{}{}
-		routes["PUT /kv/{key}"] = struct{}{}
-		routes["DELETE /kv/{key}"] = struct{}{}
+		routes = append(routes, "GET /kv/{key}")
+		routes = append(routes, "PUT /kv/{key}")
+		routes = append(routes, "DELETE /kv/{key}")
 	}
 
 	if s.sayerService != nil {
 		log.Println("register sayer handlers")
 		http.HandleFunc("GET /say", s.handleSay)
 
-		routes["GET /say"] = struct{}{}
+		routes = append(routes, "GET /say")
 	}
 
 	if s.rollerService != nil {
 		log.Println("register roller handlers")
 		http.HandleFunc("GET /roll", s.handleRoll)
 
-		routes["GET /roll"] = struct{}{}
+		routes = append(routes, "GET /roll")
 	}
 
 	http.HandleFunc("/endpoints", func(w http.ResponseWriter, r *http.Request) {
-		var keys []string
-		for key := range routes {
-			keys = append(keys, key)
-		}
-
-		sort.Strings(keys)
+		sort.Strings(routes)
 
 		w.Header().Set("Content-Type", "text/plain")
 
 		fmt.Fprintln(w, "Available endpoints:")
-		for _, route := range keys {
+		for _, route := range routes {
 			fmt.Fprintf(w, "  %s\n", route)
 		}
 

@@ -6,4 +6,6 @@ metadata:
   namespace: xmodule
   {{- include "helm_lib_module_labels" (list . (dict "app" "xmodule")) | nindent 2 }}
 data:
-  config: {{ .Values.xmodule.config | toYaml | nindent 4}}
+  config.yaml: |
+    config: 
+      {{ .Values.xmodule.config | toYaml | nindent 6}}
