@@ -5,6 +5,12 @@ properties:
   internal:
     type: object
     default: {}
+    properties:
+      apiServers:
+        type: array
+        default: []
+        items:
+          type: string
   registry:
     type: object
     description: System field, overwritten by Deckhouse.
